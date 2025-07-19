@@ -201,7 +201,7 @@ async function initApp () {
 }
 
 const INTERVAL_MS = 5000
-const TIMER_MS = 300
+const TIMER_MS = 500
 
 const renderStatus = (error?: Error) => {
   status?.replaceChildren()
