@@ -1,5 +1,5 @@
 import './style.css'
-import { ping } from './api'
+import { measureResponseTimeWithTiming, ping } from './api'
 
 type User = {
   name: string
@@ -22,6 +22,8 @@ type ErrorResponse = {
 type AuthFormProps = {
   onSubmit: (user: User) => void
 }
+
+const status = document.getElementById('status')
 
 function sanitize (html: string | null) {
   const el = document.createElement('div')
@@ -201,25 +203,39 @@ async function initApp () {
 const INTERVAL_MS = 5000
 const TIMER_MS = 500
 
-const renderError = (error: Error) => {
+const renderStatus = (error?: Error) => {
+  status?.replaceChildren()
+
+  if (!error) return
+
   const errorWrapper = document.createElement('div')
   errorWrapper.classList.add('network-error')
   errorWrapper.innerText = error.message
   errorWrapper.classList.add(error.name === 'NetworkError' ? 'network__error' : 'network__slow')
 
-  return errorWrapper
+  status?.appendChild(errorWrapper)
 }
 
 const checkConnection = async () => {
-  const status = document.getElementById('status')
-
   try {
-    await ping()
+    const { duration } = await measureResponseTimeWithTiming(() => ping())
+
+    if (duration > TIMER_MS) {
+      const slowConnectionError = new Error('Медленное соединение')
+      slowConnectionError.name = 'SlowConnectionError'
+      renderStatus(slowConnectionError)
+      return
+    }
+
+    renderStatus()
+
   } catch (error) {
+    const isNetworkError = error instanceof TypeError
+
     const networkError = new Error('Проблема с сетью')
     networkError.name = 'NetworkError'
 
-    status?.appendChild(renderError(networkError))
+    renderStatus(isNetworkError ? networkError : error as Error)
   }
 }
 
