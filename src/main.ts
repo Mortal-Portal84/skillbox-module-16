@@ -1,5 +1,6 @@
+import { ping } from './api'
+
 import './style.css'
-import { measureResponseTimeWithTiming, ping } from './api'
 
 type User = {
   name: string
@@ -217,25 +218,32 @@ const renderStatus = (error?: Error) => {
 }
 
 const checkConnection = async () => {
+  const controller = new AbortController()
+  const { signal } = controller
+  let id: number
+
   try {
-    const { duration } = await measureResponseTimeWithTiming(() => ping())
+    id = setTimeout(() => {
+      controller.abort()
+    }, TIMER_MS)
 
-    if (duration > TIMER_MS) {
-      const slowConnectionError = new Error('Медленное соединение')
-      slowConnectionError.name = 'SlowConnectionError'
-      renderStatus(slowConnectionError)
-      return
-    }
+    await ping(signal)
+      .then(() => renderStatus())
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          const slowConnectionError = new Error('Медленное соединение')
+          slowConnectionError.name = 'SlowConnectionError'
+          throw slowConnectionError
+        }
 
-    renderStatus()
-
+        const networkError = new Error('Неполадки с сетью')
+        networkError.name = 'NetworkError'
+        throw networkError
+      })
   } catch (error) {
-    const isNetworkError = error instanceof TypeError
-
-    const networkError = new Error('Проблема с сетью')
-    networkError.name = 'NetworkError'
-
-    renderStatus(isNetworkError ? networkError : error as Error)
+    renderStatus(error as Error)
+  } finally {
+    clearTimeout(id)
   }
 }
 
