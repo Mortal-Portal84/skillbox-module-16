@@ -1,0 +1,124 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+#app {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.topbar-logo {
+  font-weight: bold;
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.user-email {
+  font-size: 12px;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: #500;
+  border-radius: 12px;
+  color: #fff;
+}
+
+.error-title {
+  font-weight: bold;
+}
+
+.network-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-block;
+  margin: 0 auto;
+  padding: 1em;
+  font-weight: bold;
+  background-color: green;
+  border-radius: 2em;
+  color: #fff;
+}
+
+.network__error {
+  background-color: red;
+}
+
+.network__slow {
+  background-color: darkorange;
+}
+
+.films {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.films-card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 12px;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.films-card[data-watched="true"] {
+  background: inherit;
+}
+
+.films-card[data-watched="true"]::after {
+  content: 'просмотрено';
+  bottom: 4px;
+  left: 20px;
+  font-size: 12px;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.authForm input {
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: none;
+  border: 1px solid #ccc;
+}
+
+.authForm-submit {
+  padding: 10px 8px;
+  background: #52a252;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  margin-top: 16px;
+  cursor: pointer;
+}
