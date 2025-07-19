@@ -23,6 +23,8 @@ type AuthFormProps = {
   onSubmit: (user: User) => void
 }
 
+const status = document.getElementById('status')
+
 function sanitize (html: string | null) {
   const el = document.createElement('div')
   if (html != null) el.innerHTML = html
@@ -199,27 +201,48 @@ async function initApp () {
 }
 
 const INTERVAL_MS = 5000
-const TIMER_MS = 500
+const TIMER_MS = 300
 
-const renderError = (error: Error) => {
+const renderStatus = (error?: Error) => {
+  status?.replaceChildren()
+
+  if (!error) return
+
   const errorWrapper = document.createElement('div')
   errorWrapper.classList.add('network-error')
   errorWrapper.innerText = error.message
   errorWrapper.classList.add(error.name === 'NetworkError' ? 'network__error' : 'network__slow')
 
-  return errorWrapper
+  status?.appendChild(errorWrapper)
 }
 
 const checkConnection = async () => {
-  const status = document.getElementById('status')
+  const controller = new AbortController()
+  const { signal } = controller
+  let id
 
   try {
-    await ping()
-  } catch (error) {
-    const networkError = new Error('Проблема с сетью')
-    networkError.name = 'NetworkError'
+    id = setTimeout(() => {
+      controller.abort()
+    }, TIMER_MS)
 
-    status?.appendChild(renderError(networkError))
+    await ping(signal)
+      .then(() => renderStatus())
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          const slowConnectionError = new Error('Медленное соединение')
+          slowConnectionError.name = 'SlowConnectionError'
+          throw slowConnectionError
+        }
+
+        const networkError = new Error('Неполадки с сетью')
+        networkError.name = 'NetworkError'
+        throw networkError
+      })
+  } catch (error) {
+    renderStatus(error as Error)
+  } finally {
+    clearTimeout(id)
   }
 }
 
