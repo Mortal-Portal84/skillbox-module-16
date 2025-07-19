@@ -45,6 +45,28 @@ body {
   font-weight: bold;
 }
 
+.network-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-block;
+  margin: 0 auto;
+  padding: 1em;
+  font-weight: bold;
+  background-color: green;
+  border-radius: 2em;
+  color: #fff;
+}
+
+.network__error {
+  background-color: red;
+}
+
+.network__slow {
+  background-color: darkorange;
+}
+
 .films {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

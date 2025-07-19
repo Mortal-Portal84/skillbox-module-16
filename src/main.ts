@@ -1,4 +1,5 @@
 import './style.css'
+import { ping } from './api'
 
 type User = {
   name: string
@@ -20,7 +21,7 @@ type ErrorResponse = {
 
 type AuthFormProps = {
   onSubmit: (user: User) => void
-};
+}
 
 function sanitize (html: string | null) {
   const el = document.createElement('div')
@@ -122,7 +123,7 @@ function renderGlobalError (message: string) {
     <div class="error">
       <div class="error-title">Упс... Возникла ошибка</div>
       <div class="error-message">${sanitize(message)}</div>
-    </error>
+    </div>
   `
 
   return el
@@ -197,5 +198,31 @@ async function initApp () {
   }
 }
 
+const INTERVAL_MS = 5000
+const TIMER_MS = 500
+
+const renderError = (error: Error) => {
+  const errorWrapper = document.createElement('div')
+  errorWrapper.classList.add('network-error')
+  errorWrapper.innerText = error.message
+  errorWrapper.classList.add(error.name === 'NetworkError' ? 'network__error' : 'network__slow')
+
+  return errorWrapper
+}
+
+const checkConnection = async () => {
+  const status = document.getElementById('status')
+
+  try {
+    await ping()
+  } catch (error) {
+    const networkError = new Error('Проблема с сетью')
+    networkError.name = 'NetworkError'
+
+    status?.appendChild(renderError(networkError))
+  }
+}
+
 initApp().then(r => r)
 
+setInterval(checkConnection, INTERVAL_MS)
